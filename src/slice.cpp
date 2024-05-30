@@ -25,14 +25,14 @@ const unsigned Table[16][4][3] = {
     {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}  // A+ B+ C+ D+
 };
 
-void cpu_slice(std::vector<float> &triangle_vertices, glm::vec4 hyperPlaneNormal, float hyperPlaneOffset, std::vector<glm::vec4> &vertices, std::vector<unsigned> &indices, glm::vec4 vertexOffsets){
+void cpu_slice(std::vector<float> &triangle_vertices, glm::vec4 hyperPlaneNormal, float hyperPlaneOffset, std::vector<glm::vec4> &vertices, std::vector<unsigned> &indices){
     for(std::vector<unsigned>::iterator it=indices.begin(); it!=indices.end(); it+=4){
         unsigned tetrahedron_indices[4] = {*(it), *(it+1), *(it+2), *(it+3)};
         glm::vec4 tetrahedron_vertices[4] = {
-            vertices[tetrahedron_indices[0]] + vertexOffsets, 
-            vertices[tetrahedron_indices[1]] + vertexOffsets, 
-            vertices[tetrahedron_indices[2]] + vertexOffsets, 
-            vertices[tetrahedron_indices[3]] + vertexOffsets
+            vertices[tetrahedron_indices[0]], 
+            vertices[tetrahedron_indices[1]], 
+            vertices[tetrahedron_indices[2]], 
+            vertices[tetrahedron_indices[3]]
         };
         bool s[4] = {
             (dot(tetrahedron_vertices[0], hyperPlaneNormal) + hyperPlaneOffset) > 0, 
