@@ -130,7 +130,7 @@ int main(int argc, char** argv){
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode){
-    if(action == GLFW_PRESS || action == GLFW_REPEAT){
+    if(action == GLFW_PRESS){
         switch(key){
             case GLFW_KEY_W: {
                 player->moving_forward = true;
@@ -162,6 +162,27 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             }
             case GLFW_KEY_ESCAPE: {
                 glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            }
+            default:
+                break;
+        }
+    }else if(action == GLFW_RELEASE){
+        switch(key){
+            case GLFW_KEY_W: {
+                player->moving_forward = false;
+                break;
+            }
+            case GLFW_KEY_S: {
+                player->moving_backward = false;
+                break;
+            }
+            case GLFW_KEY_A: {
+                player->moving_left = false;
+                break;
+            }
+            case GLFW_KEY_D: {
+                player->moving_right = false;
                 break;
             }
             default:

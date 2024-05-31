@@ -1,7 +1,7 @@
 #include "solver.h"
 #include <iostream>
 #include <algorithm>
-void ImpulseSolver::solve(std::vector<Collision3D4D>& collisions, AXIS axis, float dt){
+void ImpulseSolver::solve(std::vector<Collision3D4D>& collisions, glm::vec3 axis, float dt){
     for (Collision3D4D& collision : collisions) {
         RigidBody3D *obj3d = collision.obj3d->isDynamic ? (RigidBody3D*)collision.obj3d : nullptr;
         //assume object4d are all static
@@ -20,40 +20,24 @@ void ImpulseSolver::solve(std::vector<Collision3D4D>& collisions, AXIS axis, flo
 }
 
 
-void PositionSolver::solve(std::vector<Collision3D4D>& collisions, AXIS axis, float dt){
+void PositionSolver::solve(std::vector<Collision3D4D>& collisions, glm::vec3 axis, float dt){
+    // need to distinguish between dynamic obj and static obj
     float delta = 0.0;
-    RigidBody3D *obj3d;
-    if(collisions.size() == 0) return;
-    
+    RigidBody3D *obj3d = NULL;
+    axis = glm::normalize(axis);
     for (Collision3D4D& collision : collisions) {
-        obj3d = collision.obj3d->isDynamic ? (RigidBody3D*)collision.obj3d : nullptr;
+        obj3d = collision.obj3d->isDynamic ? (RigidBody3D*)collision.obj3d : NULL;
         CollisionPoints points = collision.points;
-        if(axis == X_AXIS){
-            float depth = points.B.x - points.A.x;
-            if(abs(depth) > abs(delta)){
-                delta = depth;
-            }
-        }
-        if(axis == Y_AXIS){
-            float depth = points.B.y - points.A.y;
-            if(abs(depth) > abs(delta)){
-                delta = depth;
-            }
-        }
-        if(axis == Z_AXIS){
-            float depth = points.B.z - points.A.z;
-            if(abs(depth) > abs(delta)){
-                delta = depth;
-            }
+        glm::vec3 normal = points.B - points.A;
+        float depth = glm::dot(normal, axis);
+        if(abs(depth) > abs(delta)){
+            delta = depth;
+            
         }
     }
-    if(axis == X_AXIS){
-        obj3d->move(glm::vec3(delta, 0.0, 0.0));
+    if(obj3d){
+        obj3d->move(delta * axis);
+        
     }
-    if(axis == Y_AXIS){
-        obj3d->move(glm::vec3(0.0, delta, 0.0));
-    }
-    if(axis == Z_AXIS){
-        obj3d->move(glm::vec3(0.0, 0.0, delta));
-    }
+    
 }

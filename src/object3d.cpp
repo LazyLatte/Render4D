@@ -14,24 +14,12 @@ Object3D::~Object3D(){
     delete this->aabbCollider;
 }
 
-glm::mat4 Object3D::getTranslationMatrix(){
-    return glm::translate(glm::mat4(1.0f), this->transform->position);
-}
-
-glm::mat4 Object3D::getScalingMatrix(){
-    return glm::scale(glm::mat4(1.0f), this->transform->scale);
-}
-
-glm::mat4 Object3D::getRotationMatrix(){
-    return glm::mat4_cast(this->transform->rotation);
-}
-
 glm::mat4 Object3D::getModelMatrix(){
-    return this->getTranslationMatrix() * this->getRotationMatrix() * this->getScalingMatrix();
+    return  glm::translate(glm::mat4(1.0f), this->transform->position) * glm::mat4_cast(this->transform->rotation) * glm::scale(glm::mat4(1.0f), this->transform->scale);
 }
 
-bool Object3D::TestCollision(const Collider* collider, const Transform3D *colliderTransform) const {
-    return this->aabbCollider->TestCollision(this->transform, collider, colliderTransform).hasCollision;
+CollisionPoints Object3D::TestCollision(const AABBCollider* aabbCollider, const Transform3D *aabbColliderTransform) const {
+    return this->aabbCollider->TestCollision(this->transform, aabbCollider, aabbColliderTransform);
 }
 // bool Object3D::Test3DCollision(Object3D *obj3d){
 //     return this->aabbCollider->TestCollision(this->transform, obj3d->aabbCollider, obj3d->transform).hasCollision;

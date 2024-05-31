@@ -6,7 +6,7 @@ CollisionPoints algo::FindAABBAABBCollisionPoints(const AABBCollider *a, const T
 
     glm::vec3 bMin = tb ? tb->scale * b->min_xyz + tb->position : b->min_xyz;
     glm::vec3 bMax = tb ? tb->scale * b->max_xyz + tb->position : b->max_xyz;
-    bool hasCollision = (aMin.x <= bMax.x && aMax.x >= bMin.x) && (aMin.y <= bMax.y && aMax.y >= bMin.y) && (aMin.z <= bMax.z && aMax.z >= bMin.z);
+    bool hasCollision = (aMin.x < bMax.x && aMax.x > bMin.x) && (aMin.y < bMax.y && aMax.y > bMin.y) && (aMin.z < bMax.z && aMax.z > bMin.z);
     if(hasCollision){
         // glm::vec3 A, B;
         // if(aMin.x <= bMin.x && bMax.x <= aMax.x){

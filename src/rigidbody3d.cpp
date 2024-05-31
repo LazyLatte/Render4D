@@ -3,14 +3,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 RigidBody3D::RigidBody3D(){
-    this->front = glm::vec3(0.0);
     this->velocity = glm::vec3(0.0);
     this->force = glm::vec3(0.0);
     this->mass = 0.0;
 }
 
-RigidBody3D::RigidBody3D(glm::vec3 position, glm::vec3 scale, glm::vec3 front, float mass) : Object3D(position, scale, true) {
-    this->front = front;
+RigidBody3D::RigidBody3D(glm::vec3 position, glm::vec3 scale, float mass) : Object3D(position, scale, true) {
     this->velocity = glm::vec3(0.0);
     this->force = glm::vec3(0.0);
     this->mass = mass;

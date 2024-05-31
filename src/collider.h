@@ -12,7 +12,7 @@ typedef struct _CollisionPoints {
     float depth;
     bool hasCollision;
     _CollisionPoints(){}
-    _CollisionPoints(bool _hasCollision): hasCollision(_hasCollision){}
+    _CollisionPoints(bool _hasCollision): A(glm::vec3(0.0)), B(glm::vec3(0.0)), dir(glm::vec3(0.0)), depth(0.0), hasCollision(_hasCollision){}
     _CollisionPoints(glm::vec3 _A, glm::vec3 _B, glm::vec3 _dir, float _depth, bool _hasCollision): A(_A), B(_B), dir(_dir), depth(_depth), hasCollision(_hasCollision){}
 }CollisionPoints;
 

@@ -6,7 +6,9 @@
 #include <iostream>
 #define deg2rad(x) ((x)*((3.1415926f)/(180.0f)))
 
+glm::vec3 x_axis = glm::vec3(1.0, 0.0, 0.0);
 glm::vec3 y_axis = glm::vec3(0.0, 1.0, 0.0);
+glm::vec3 z_axis = glm::vec3(0.0, 0.0, 1.0);
 glm::mat4 identity(1.0);
 Scene::Scene(){
     this->shader_3d = new Shader("./shaders/vs.glsl", "./shaders/fs.glsl");
@@ -42,68 +44,58 @@ void Scene::init(){
     // }
 }
 void Scene::applyGravity(){
+    // on all rigidbody
     glm::vec3 gravity_force = this->getPlayer()->mass * this->gravity;
     this->getPlayer()->force += gravity_force;
 }
 
-void Scene::resolveCollision(float dt){
-    // for(auto &collision : this->coliisions){
-        
-    // }
+void Scene::testCollisions(){
+    this->coliisions.clear();
+    for(unsigned i=0; i<this->numOfTesseract; i++){
+        CollisionPoints points = this->getPlayer()->TestCollision(this->tesseracts[i]->getCollider(), NULL);
+        if(points.hasCollision){
+            this->coliisions.emplace_back(this->getPlayer(), this->tesseracts[i], points);
+        }
+    }
 }
 
-
 void Scene::step(float dt){
+    
     this->applyGravity();
     this->player->velocity += (this->getPlayer()->force / this->getPlayer()->mass) * dt;
     glm::vec3 controlled_velocity = this->player->calculateVelocity();
     this->player->velocity += controlled_velocity;
     glm::vec3 delta = this->getPlayer()->velocity * dt;
 
+    
+    glm::vec3 prevPlayerPosition = this->player->getPosition();
     //solve x
-    bool x_has_collision = false;
     this->getPlayer()->move(glm::vec3(delta.x, 0.0, 0.0));
-    for(unsigned i=0; i<this->numOfTesseract; i++){
-        CollisionPoints points = this->getPlayer()->TestCollision(this->tesseracts[i]->getCollider(), NULL);
-        if(points.hasCollision){
-            x_has_collision = true;
-            this->coliisions.emplace_back(this->getPlayer(), this->tesseracts[i], points);
-        }
-    }
-    this->position_solver->solve(this->coliisions, AXIS::X_AXIS, dt);
+    this->testCollisions();
+    bool x_has_collision = this->coliisions.size() > 0;
+    this->position_solver->solve(this->coliisions, x_axis, dt);
 
     //solve y
-    bool y_has_collision = false;
     this->getPlayer()->move(glm::vec3(0.0, delta.y, 0.0));
-    for(unsigned i=0; i<this->numOfTesseract; i++){
-        CollisionPoints points = this->getPlayer()->TestCollision(this->tesseracts[i]->getCollider(), NULL);
-        if(points.hasCollision){
-            y_has_collision = true;
-            this->coliisions.emplace_back(this->getPlayer(), this->tesseracts[i], points);
-        }
-    }
-    this->position_solver->solve(this->coliisions, AXIS::Y_AXIS, dt);
-
+    this->testCollisions();
+    bool y_has_collision = this->coliisions.size() > 0;
+    this->position_solver->solve(this->coliisions, y_axis, dt);
+    
     //solve z
-    bool z_has_collision = false;
     this->getPlayer()->move(glm::vec3(0.0, 0.0, delta.z));
-    for(unsigned i=0; i<this->numOfTesseract; i++){
-        CollisionPoints points = this->getPlayer()->TestCollision(this->tesseracts[i]->getCollider(), NULL);
-        if(points.hasCollision){
-            z_has_collision = true;
-            this->coliisions.emplace_back(this->getPlayer(), this->tesseracts[i], points);
-        }
-    }
-    this->position_solver->solve(this->coliisions, AXIS::Z_AXIS, dt);
-   // this->getCamera()->move(d);
+    this->testCollisions();
+    bool z_has_collision = this->coliisions.size() > 0;
+    this->position_solver->solve(this->coliisions, z_axis, dt);
+
+    //move camera
+    this->getCamera()->move(this->player->getPosition() - prevPlayerPosition);
+    //clear
     this->getPlayer()->force = glm::vec3(0.0);
     this->player->velocity -= controlled_velocity;
 
     this->player->velocity.x *= !x_has_collision;
     this->player->velocity.y *= !y_has_collision;
     this->player->velocity.z *= !z_has_collision;
-
-    this->coliisions.clear();
 }
 
 void Scene::render4D(){
@@ -147,57 +139,4 @@ Scene::~Scene(){
     for(unsigned i=0; i<this->numOfTesseract; i++){
         delete this->tesseracts[i];
     }
-}
-
-void Scene::resolve_key_callback(char key){
-    // glm::vec3 player_front = this->getPlayer()->front;
-    // glm::vec3 player_right = glm::cross(player_front, y_axis);
-    // glm::vec3 player_up = glm::normalize(glm::cross(player_right, player_front));
-    // glm::vec3 camera_front = glm::normalize(this->getCamera()->getCameraFront());
-    // switch(key){
-    //     case 'W': {
-    //         glm::vec3 dir = glm::normalize(camera_front - (glm::dot(camera_front, player_up) / glm::dot(player_up, player_up)) * player_up);
-    //         this->getPlayer()->move(dir);
-    //         this->getCamera()->position += dir;
-
-    //         float sign = glm::dot(glm::cross(player_front, dir), y_axis)>=0 ? 1.0f : -1.0f;
-    //         //this->getPlayer()->transform->rotation *= glm::quat_cast(glm::rotate(glm::mat4(1.0), acos(glm::dot(player_front, dir)/(glm::length(player_front) * glm::length(dir))), sign*y_axis));
-    //         this->getPlayer()->front = dir;
-    //         break;
-    //     }
-    //     case 'S': {
-    //         glm::vec3 dir = -glm::normalize(camera_front - (glm::dot(camera_front, player_up) / glm::dot(player_up, player_up)) * player_up);
-    //         this->getPlayer()->move(dir);
-    //         this->getCamera()->position += dir;
-
-    //         float sign = glm::dot(glm::cross(player_front, dir), y_axis)>=0 ? 1.0f : -1.0f;
-    //         //this->getPlayer()->transform->rotation *= glm::quat_cast(glm::rotate(glm::mat4(1.0), acos(glm::dot(player_front, dir)/(glm::length(player_front) * glm::length(dir))), sign*y_axis));
-    //         this->getPlayer()->front = dir;
-    //         break;
-    //     }
-    //     case 'A': {
-    //         glm::vec3 camera_right = glm::normalize(glm::cross(camera_front, y_axis));
-    //         glm::vec3 dir = -glm::normalize(camera_right - (glm::dot(camera_right, player_up) / glm::dot(player_up, player_up)) * player_up);
-    //         this->getPlayer()->move(dir);
-    //         this->getCamera()->position += dir;
-
-    //         float sign = glm::dot(glm::cross(player_front, dir), y_axis)>=0 ? 1.0f : -1.0f;
-    //         //this->getPlayer()->transform->rotation *= glm::rotate(glm::mat4(1.0), acos(glm::dot(player_front, dir)/(glm::length(player_front) * glm::length(dir))), sign*y_axis);
-    //         this->getPlayer()->front = dir;
-    //         break;
-    //     }
-    //     case 'D': {
-    //         glm::vec3 camera_right = glm::normalize(glm::cross(camera_front, y_axis));
-    //         glm::vec3 dir = glm::normalize(camera_right - (glm::dot(camera_right, player_up) / glm::dot(player_up, player_up)) * player_up);
-    //         this->getPlayer()->move(dir);
-    //         this->getCamera()->position += dir;
-
-    //         float sign = glm::dot(glm::cross(player_front, dir), y_axis)>=0 ? 1.0f : -1.0f;
-    //         //this->getPlayer()->transform->rotation *= glm::rotate(glm::mat4(1.0), acos(glm::dot(player_front, dir)/(glm::length(player_front) * glm::length(dir))), sign*y_axis);
-    //         this->getPlayer()->front = dir;
-    //         break;
-    //     }
-    //     default:
-    //         break;
-    // } 
 }

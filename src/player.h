@@ -18,11 +18,15 @@ class Player : public RigidBody3D, public Renderable {
         bool moving_right;
         bool moving_left;
         bool grounded;
+        glm::vec3 initial_front;
+
         Player();
         Player(std::string filename, glm::vec3 pos, glm::vec3 scale, glm::vec3 front, float mass);
         void addScene(Scene *scene);
         Scene *getScene() const;
-        glm::vec3 calculateVelocity() const;
+        glm::vec3 calculateVelocity();
+        void rotate(glm::vec3 dir);
+        
 };
 
 

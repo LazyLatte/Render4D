@@ -9,10 +9,10 @@ class RigidBody3D : public Object3D {
         float mass;
         glm::vec3 velocity;
         glm::vec3 force;
-        glm::vec3 front;
+        
         
         RigidBody3D();
-        RigidBody3D(glm::vec3 position, glm::vec3 scale, glm::vec3 front, float mass);
+        RigidBody3D(glm::vec3 position, glm::vec3 scale, float mass);
         glm::vec3 getPosition() const;
         void addForce(glm::vec3 force);
         void move(glm::vec3 d);

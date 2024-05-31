@@ -15,17 +15,17 @@ typedef struct _Collision3D4D {
 
 class Solver{
     public:
-        virtual void solve(std::vector<Collision3D4D>& collisions, AXIS axis, float dt) = 0;
+        virtual void solve(std::vector<Collision3D4D>& collisions, glm::vec3 axis, float dt) = 0;
 };
 
 class ImpulseSolver : public Solver{
     public:
-        void solve(std::vector<Collision3D4D>& collisions, AXIS axis,float dt) override;
+        void solve(std::vector<Collision3D4D>& collisions, glm::vec3 axis,float dt) override;
 };
 
 class PositionSolver : public Solver{
     public:
-        void solve(std::vector<Collision3D4D>& collisions, AXIS axis, float dt) override;
+        void solve(std::vector<Collision3D4D>& collisions, glm::vec3 axis, float dt) override;
 };
 
 #endif /* SOLVER_H */

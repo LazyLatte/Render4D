@@ -43,10 +43,9 @@ class Scene {
         void render4D();
         void renderPlayer();
         void step(float dt);
-        void resolve_key_callback(char key);
         void rotateHyperplane(float radX, float radY, float radZ);
         void applyGravity();
-        void resolveCollision(float dt);
+        void testCollisions();
         Player *getPlayer();
         Camera *getCamera();
         Hyperplane *getHyperplane();

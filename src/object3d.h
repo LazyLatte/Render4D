@@ -13,11 +13,8 @@ class Object3D {
         Object3D();
         ~Object3D();
         Object3D(glm::vec3 position, glm::vec3 scale, bool isDynamic);
-        glm::mat4 getTranslationMatrix();
-        glm::mat4 getScalingMatrix();
-        glm::mat4 getRotationMatrix();
         glm::mat4 getModelMatrix();
-        bool TestCollision(const Collider* collider, const Transform3D *colliderTransform) const;
+        CollisionPoints TestCollision(const AABBCollider* aabbCollider, const Transform3D *aabbColliderTransform) const;
 };
 
 #endif
