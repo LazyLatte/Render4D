@@ -4,5 +4,6 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-void cpu_slice(std::vector<float> &triangle_vertices, glm::vec4 hyperPlaneNormal, float hyperPlaneOffset, std::vector<glm::vec4> &vertices, std::vector<unsigned> &indices);
+// void cpu_slice(std::vector<float> &triangle_vertices, glm::vec4 hyperPlaneNormal, float hyperPlaneOffset, std::vector<glm::vec4> &vertices, std::vector<unsigned> &indices);
+// __device__ void gpu_slice(std::vector<float> &triangle_vertices, glm::vec4 hyperPlaneNormal, float hyperPlaneOffset, std::vector<glm::vec4> &vertices, std::vector<unsigned> &indices);
 #endif

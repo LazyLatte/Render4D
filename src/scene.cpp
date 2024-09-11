@@ -11,8 +11,8 @@ glm::vec3 y_axis = glm::vec3(0.0, 1.0, 0.0);
 glm::vec3 z_axis = glm::vec3(0.0, 0.0, 1.0);
 glm::mat4 identity(1.0);
 Scene::Scene(){
-    this->shader_3d = new Shader("./shaders/vs.glsl", "./shaders/fs.glsl");
-    this->shader_4d = new Shader("./shaders/vs_4d.glsl", "./shaders/fs_4d.glsl");
+    this->shader3d = new Shader3D("./shaders/vs.glsl", "./shaders/fs.glsl");
+    this->shader4d = new Shader4D("./shaders/vs_4d.glsl", "./shaders/fs_4d.glsl", "./shaders/slice.gs.glsl");
     this->numOfTesseract = 0;
     this->gravity = glm::vec3(0.0, -9.81, 0.0);
     this->impulse_solver = new ImpulseSolver;
@@ -60,7 +60,7 @@ void Scene::testCollisions(){
 }
 
 void Scene::step(float dt){
-    
+    //return;
     this->applyGravity();
     this->player->velocity += (this->getPlayer()->force / this->getPlayer()->mass) * dt;
     glm::vec3 controlled_velocity = this->player->calculateVelocity();
@@ -70,10 +70,10 @@ void Scene::step(float dt){
     
     glm::vec3 prevPlayerPosition = this->player->getPosition();
     //solve x
-    this->getPlayer()->move(glm::vec3(delta.x, 0.0, 0.0));
-    this->testCollisions();
-    bool x_has_collision = this->coliisions.size() > 0;
-    this->position_solver->solve(this->coliisions, x_axis, dt);
+    // this->getPlayer()->move(glm::vec3(delta.x, 0.0, 0.0));
+    // this->testCollisions();
+    // bool x_has_collision = this->coliisions.size() > 0;
+    // this->position_solver->solve(this->coliisions, x_axis, dt);
 
     //solve y
     this->getPlayer()->move(glm::vec3(0.0, delta.y, 0.0));
@@ -82,10 +82,10 @@ void Scene::step(float dt){
     this->position_solver->solve(this->coliisions, y_axis, dt);
     
     //solve z
-    this->getPlayer()->move(glm::vec3(0.0, 0.0, delta.z));
-    this->testCollisions();
-    bool z_has_collision = this->coliisions.size() > 0;
-    this->position_solver->solve(this->coliisions, z_axis, dt);
+    // this->getPlayer()->move(glm::vec3(0.0, 0.0, delta.z));
+    // this->testCollisions();
+    // bool z_has_collision = this->coliisions.size() > 0;
+    // this->position_solver->solve(this->coliisions, z_axis, dt);
 
     //move camera
     this->getCamera()->move(this->player->getPosition() - prevPlayerPosition);
@@ -93,22 +93,24 @@ void Scene::step(float dt){
     this->getPlayer()->force = glm::vec3(0.0);
     this->player->velocity -= controlled_velocity;
 
-    this->player->velocity.x *= !x_has_collision;
+    //this->player->velocity.x *= !x_has_collision;
     this->player->velocity.y *= !y_has_collision;
-    this->player->velocity.z *= !z_has_collision;
+   // this->player->velocity.z *= !z_has_collision;
 }
 
 void Scene::render4D(){
-    this->shader_4d->useShader(&identity[0][0], &this->camera->getViewMatrix()[0][0], &this->proj_matrix[0][0]);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    this->shader4d->setVP(&this->camera->getViewMatrix()[0][0], &this->proj_matrix[0][0]);
+    this->shader4d->setHyperplane(&this->hyperplane->getNormal()[0], this->hyperplane->getOffset());
+    
+   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     for(unsigned i=0; i<this->numOfTesseract; i++){
-       // std::cout << this->tesseracts[i]->aabbCollider->Ymin << " " << this->tesseracts[i]->aabbCollider->Ymax<<std::endl;
+        this->shader4d->setTransform4D(&this->tesseracts[i]->getTranslation()[0], &this->tesseracts[i]->getLeftIsoclinicMatrix()[0][0], &this->tesseracts[i]->getRightIsoclinicMatrix()[0][0]);
         this->tesseracts[i]->draw();
     }
 }
 
 void Scene::renderPlayer(){
-    this->shader_3d->useShader(&this->player->getModelMatrix()[0][0], &this->camera->getViewMatrix()[0][0], &this->proj_matrix[0][0]);
+    this->shader3d->setMVP(&this->player->getModelMatrix()[0][0], &this->camera->getViewMatrix()[0][0], &this->proj_matrix[0][0]);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     this->player->draw();
 }
@@ -134,8 +136,8 @@ void Scene::setProjectionMatrix(float viewportAspect){
 Scene::~Scene(){
     delete this->impulse_solver;
     delete this->position_solver;
-    delete this->shader_3d;
-    delete this->shader_4d;
+    delete this->shader3d;
+    delete this->shader4d;
     for(unsigned i=0; i<this->numOfTesseract; i++){
         delete this->tesseracts[i];
     }

@@ -26,8 +26,8 @@ class Scene {
         PositionSolver *position_solver;
         glm::vec3 gravity;
         glm::mat4 proj_matrix;
-        Shader *shader_3d;
-        Shader *shader_4d;
+        Shader3D *shader3d;
+        Shader4D *shader4d;
     public:
         std::vector<Collision3D4D> coliisions;
         Tesseract *tesseracts[1000];

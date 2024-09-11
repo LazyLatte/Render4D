@@ -21,27 +21,14 @@
 #define rad2deg(x) ((x)*(180.0f) / (3.1415926f))
 using namespace glm;
 
-vec4 offsets[] = {
-    vec4(0.0, 0.0, 0.0, 0.0),
-    vec4(4.0, 0.0, 0.0, 0.0),
-    vec4(-4.0, 0.0, 0.0, 0.0),
-    vec4(0.0, 4.0, 0.0, 0.0),
-    vec4(0.0, -4.0, 0.0, 0.0),
-    vec4(0.0, 0.0, 4.0, 0.0),
-    vec4(0.0, 0.0, -4.0, 0.0)
-};
-
 const GLuint WIDTH = 1600, HEIGHT = 1400;
-glm::mat4 proj_matrix;
-
-
 Scene *scene;
 Player *player;
 Camera *camera;
 Hyperplane *hyperplane;
 double prev_xpos, prev_ypos;
 float prevRad = 0.0;
-float prevTime = 0.0;
+double prevTime = 0.0;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
@@ -79,13 +66,14 @@ int main(int argc, char** argv){
     
     
     scene = new Scene();
-    player = new Player("ladybug.obj", glm::vec3(0.0, 5.0, 0.0), glm::vec3(0.5), glm::vec3(0.0, 0.0, 1.0), 0.01);
+    player = new Player("ladybug.obj", glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.5), glm::vec3(0.0, 0.0, 1.0), 0.01);
     camera = new Camera();
     hyperplane = new Hyperplane;
     
     scene->addPlayer(player);
     scene->addCamera(camera);
     scene->addHyperplane(hyperplane);
+   // scene->addTesseract(glm::vec4(0.0, 0.0, 0.0, 0.0));
     for(int i=-5; i<5; i++){
         for(int j=-5; j<5; j++){
             //scene->addTesseract(glm::vec4(i*2.0, 0.0, j*2.0, 0.0));
@@ -94,26 +82,40 @@ int main(int argc, char** argv){
     for(int i=-5; i<5; i++){
         for(int j=-5; j<5; j++){
             scene->addTesseract(glm::vec4(i*2.0, -10.0, j*2.0, 0.0));
+            scene->addTesseract(glm::vec4(i*2.0, 10.0, j*2.0, 0.0));
+
             // scene->addTesseract(glm::vec4(i*2.0, -10.0, j*2.0, 2.0));
             // scene->addTesseract(glm::vec4(i*2.0, -10.0, j*2.0, -2.0));
             // scene->addTesseract(glm::vec4(i*2.0, -10.0, j*2.0, 4.0));
             // scene->addTesseract(glm::vec4(i*2.0, -10.0, j*2.0, -4.0));
         }
     }
+    for(int i=-5; i<5; i++){
+        for(int j=-4; j<4; j++){
+            scene->addTesseract(glm::vec4(i*2.0, j*2.0, -10.0, 0.0));
+            scene->addTesseract(glm::vec4(i*2.0, j*2.0, 10.0, 0.0));
+
+
+            // scene->addTesseract(glm::vec4(-10.0, j*2.0, i*2.0, 0.0));
+            // scene->addTesseract(glm::vec4(10.0, j*2.0, i*2.0, 0.0));
+        }
+    }
     scene->init();
     glEnable(GL_DEPTH_TEST);
     framebuffer_size_callback(window, WIDTH, HEIGHT);
+    prevTime = glfwGetTime();
     while (!glfwWindowShouldClose(window)){
         
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float timeValue = (float)glfwGetTime() * 30.0f;
-        float rad = deg2rad(timeValue);
+        double timeValue = glfwGetTime();
+        //float rad = deg2rad(timeValue);
 
         //scene->rotateHyperplane(rad - prevRad, 0.0, 0.0);
-        prevRad = rad;
-        scene->step(1.0f/60.0f);
+        //prevRad = rad;
+        
+        scene->step(timeValue - prevTime);
         prevTime = timeValue;
         scene->render4D();
         scene->renderPlayer();
